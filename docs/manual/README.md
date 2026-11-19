@@ -11,5 +11,5 @@
 | 章节 | 内容 | 状态 |
 | --- | --- | --- |
 | [第一章 平台之路](01-platform-setup.md) | 开放平台注册与个人实名、创建机器人、AppID/AppSecret、自建测试群、拉机器人入群、开启「机器人主动在群聊内发言」 | ✅ 可用 |
-| 第二章 第一条 Tip | 运行机器人、@ 捕获 group_openid、测试群收到第一条 Tip | 计划中（见 `.scratch/tip-bot/issues/02-tracer-bullet-first-tip.md`） |
+| [第二章 第一条 Tip](02-first-tip.md) | 运行机器人（Windows/Ubuntu）、@ 捕获 group_openid、测试群收到第一条 Tip | ✅ 可用 |
 | 后续章节 | Ubuntu 服务器部署、切换正式 Target Group、日常运维、排错对照表 | 计划中（见 `.scratch/tip-bot/issues/04-deploy-and-go-live.md`） |

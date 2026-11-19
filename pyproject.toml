@@ -1,0 +1,15 @@
+# 本项目直接从仓库根目录以 `python -m tipbot` 运行，不打包安装；
+# 此文件只承载工具配置（pytest / mypy）。
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.mypy]
+files = ["tipbot"]
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = "botpy.*"
+ignore_missing_imports = true
