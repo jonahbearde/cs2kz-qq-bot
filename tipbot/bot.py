@@ -28,12 +28,12 @@ class TipBot(botpy.Client):
         super().__init__(intents=intents)
         self._target_group_openid = config.target_group_openid
         self._tips_file = tips_file
-        self._tip_sent = False
+        self._tip_attempted = False
 
     async def on_ready(self) -> None:
         _log.info("机器人「%s」已上线（WebSocket 出站连接，无需公网 IP/域名/Webhook）", self.robot.name)
-        if self._tip_sent:
-            return  # 断线重连不重发：每次进程运行只发一条（曳光弹）
+        if self._tip_attempted:
+            return  # 每次进程运行只尝试发送一条（曳光弹）；断线重连不重发，失败后重启才再试
         if not self._target_group_openid:
             _log.info(
                 "尚未配置 TARGET_GROUP_OPENID：请在测试群 @ 机器人，"
@@ -53,6 +53,7 @@ class TipBot(botpy.Client):
         )
 
     async def _send_first_tip(self) -> None:
+        self._tip_attempted = True  # 无论成败，本次进程运行不再尝试（重试策略属后续决策核心）
         tips = load_tips(self._tips_file)
         if not tips:
             _log.warning(
@@ -73,5 +74,4 @@ class TipBot(botpy.Client):
                 "若错误码为 40034105：请检查群主是否已开启「机器人主动在群聊内发言」（手册第一章第 7 节）。"
             )
             return
-        self._tip_sent = True
         _log.info("已向 Target Group 主动发送第一条 Tip：%s", tip)
