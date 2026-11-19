@@ -29,3 +29,7 @@
 - 文档：`.env.example` 新增节奏三键（含测试群短间隔提示）；手册第二章已按新行为改写（第 0/3/6/7/8/9 节：等待对齐时刻、夜间验收加宽窗口、热加载与续发说明、FAQ）；README 章节表同步。
 
 **剩余人工检查点**：维护者在测试群按手册第二章第 6 节短间隔实测（临时 TIP_INTERVAL_MINUTES=1，夜间再加宽窗口）：对齐时刻发送、改 tips.txt 热生效、重启续发均可见，通过后勾选最后一项。注意：02 票的人工检查点（第一条 Tip 到账）现在也按新行为验收（重启后等下一对齐时刻，而非立刻收到）。
+
+### 2026-11-19 agent（code-review 后修复）
+
+双轴评审（Standards/Spec）均无硬违规。已修：Schedule 秒数换算去重（_bounds_seconds）；fakes 复用 core 的 BEIJING 与 DecisionCore 类型（删 str|datetime 假签名与 type: ignore）；oversleep 容差语义写入注释（睡过整个间隔才跳过 stale 时刻；不足一个间隔的迟到唤醒仍算当前时刻，至多迟发一条、无补发突发，亦兼容真实 sleep 毫秒级过冲）。保留不改（评审认可为合理判断）：状态用 dict-for-JSON；touch 仅 mtime 变而内容未增删改不重新洗牌（符合 US13）；适配层启动日志直读 Schedule 字段（薄层约定）。

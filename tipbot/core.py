@@ -44,17 +44,21 @@ class Schedule:
             raise ValueError("发送间隔必须 ≥ 1 分钟")
         if not (0 <= self.window_start_minute < self.window_end_minute <= 24 * 60):
             raise ValueError("Send Window 须满足 00:00 ≤ 起 < 止 ≤ 24:00")
-        interval = self.interval_minutes * 60
-        start = self.window_start_minute * 60
-        end = self.window_end_minute * 60
+        interval, start, end = self._bounds_seconds()
         if math.ceil(start / interval) * interval >= end:
             raise ValueError("Send Window 内不存在任何对齐时刻：请加大窗口或缩小间隔")
 
+    def _bounds_seconds(self) -> tuple[int, int, int]:
+        """（间隔, 窗口起, 窗口止）的秒数表示。"""
+        return (
+            self.interval_minutes * 60,
+            self.window_start_minute * 60,
+            self.window_end_minute * 60,
+        )
+
     def next_moment(self, floor: datetime) -> datetime:
         """≥ floor 的首个窗口内对齐时刻（跨天则滚到次日窗口）。floor 须为北京时间。"""
-        interval = self.interval_minutes * 60
-        start = self.window_start_minute * 60
-        end = self.window_end_minute * 60
+        interval, start, end = self._bounds_seconds()
         midnight = floor.replace(hour=0, minute=0, second=0, microsecond=0)
         while True:
             offset = (floor - midnight).total_seconds()
@@ -116,7 +120,10 @@ class DecisionCore:
                 await self._clock.sleep(delay)
                 now = self._clock.now().astimezone(BEIJING)
                 if now >= target + timedelta(minutes=self._schedule.interval_minutes):
-                    continue  # 一觉睡过整个间隔（如系统休眠）：错过的不补发
+                    # 容差语义：一觉睡过整个间隔（如系统休眠/宕机）才跳过 stale 时刻，
+                    # 错过的不补发；不足一个间隔的迟到唤醒仍算当前时刻（至多迟发一条，
+                    # 也兼容真实 sleep 的毫秒级过冲），不会形成补发突发。
+                    continue
             last_processed = target
             try:
                 await self._process_moment()

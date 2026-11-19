@@ -13,10 +13,10 @@ from __future__ import annotations
 
 import asyncio
 import heapq
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import Callable
 
-BEIJING = timezone(timedelta(hours=8))  # Asia/Shanghai：全年 UTC+8，无夏令时
+from tipbot.core import BEIJING, DecisionCore  # 时区常量与缝类型直接复用，不重复定义
 
 
 def at(year: int, month: int, day: int, hour: int, minute: int = 0, second: int = 0) -> datetime:
@@ -40,10 +40,8 @@ class FakeClock:
     def now(self) -> datetime:
         return self._now
 
-    def at(self, moment: str | datetime, fn: Callable[[], None]) -> None:
+    def at(self, moment: datetime, fn: Callable[[], None]) -> None:
         """在虚拟时刻 moment 执行 fn（sleep 经过该时刻时触发）。"""
-        if isinstance(moment, str):
-            raise TypeError("moment 必须是 datetime")
         heapq.heappush(self._events, (moment, self._seq, fn))
         self._seq += 1
 
@@ -97,12 +95,12 @@ class FakeSender:
         self.sent.append((self._clock.now(), tip))
 
 
-def run_core(core: object) -> None:
+def run_core(core: DecisionCore) -> None:
     """驱动核心 run() 直到 FakeClock 抛出 SimulationEnd。"""
 
     async def _go() -> None:
         try:
-            await core.run()  # type: ignore[attr-defined]
+            await core.run()
         except SimulationEnd:
             pass
 
