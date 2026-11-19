@@ -26,3 +26,7 @@
 - 行为要点：每次进程启动只发一条（列表第一条），断线重连不重发；定时轮播/热加载/重试属 03 票。机器人对任何消息绝不回复。
 
 **剩余人工检查点**：维护者按手册第二章在测试群实测：@ → 日志见 openid → 填 .env → 重启 → Tip 到账，通过后勾选最后一项。03 票（决策核心）在此之后解除阻塞。
+
+### 2026-11-19 agent（Python 3.14 兼容修复）
+
+维护者在 Ubuntu 服务器（Python 3.14）跑到 `python -m tipbot` 报 `RuntimeError: There is no current event loop in thread 'MainThread'`：botpy 1.2.1 构造时调用 `asyncio.get_event_loop()`，3.14 移除了隐式建环。修复：`tipbot/__main__.py` 入口显式 `asyncio.set_event_loop(asyncio.new_event_loop())`，兼容 3.8–3.14。已在本地 Python 3.14.10 复现原错误并验证修复（构造成功、pytest 8 例全绿）；3.13 回归通过。无依赖变更，服务器 git pull 后直接重跑即可。
