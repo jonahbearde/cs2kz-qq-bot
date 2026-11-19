@@ -10,3 +10,7 @@ __pycache__/
 
 # 运行日志
 *.log
+
+# Rotation 状态（洗牌顺序+游标，运行时自动生成）
+rotation_state.json
+rotation_state.json.tmp

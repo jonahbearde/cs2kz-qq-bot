@@ -30,3 +30,7 @@
 ### 2026-11-19 agent（Python 3.14 兼容修复）
 
 维护者在 Ubuntu 服务器（Python 3.14）跑到 `python -m tipbot` 报 `RuntimeError: There is no current event loop in thread 'MainThread'`：botpy 1.2.1 构造时调用 `asyncio.get_event_loop()`，3.14 移除了隐式建环。修复：`tipbot/__main__.py` 入口显式 `asyncio.set_event_loop(asyncio.new_event_loop())`，兼容 3.8–3.14。已在本地 Python 3.14.10 复现原错误并验证修复（构造成功、pytest 8 例全绿）；3.13 回归通过。无依赖变更，服务器 git pull 后直接重跑即可。
+
+### 2026-11-19 agent（03 票取代曳光弹行为）
+
+03 票（决策核心）已接入："每次启动只发列表第一条"的曳光弹行为被取代——现在启动后等到 Send Window 内下一个对齐时刻才发，随后按间隔持续轮播。本票剩余的人工检查点（测试群收到第一条 Tip）请按更新后的手册第二章第 6 节验收：重启后等下一整点/半点（可临时 TIP_INTERVAL_MINUTES=1 加速，夜间再加宽窗口）。

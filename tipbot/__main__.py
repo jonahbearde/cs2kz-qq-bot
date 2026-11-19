@@ -11,6 +11,7 @@ from tipbot.bot import TipBot
 from tipbot.config import load_config
 
 TIPS_FILE = Path("tips.txt")
+STATE_FILE = Path("rotation_state.json")
 
 
 def main() -> None:
@@ -20,7 +21,9 @@ def main() -> None:
     asyncio.set_event_loop(asyncio.new_event_loop())
     # 只订阅公域消息（群 @ 事件）；不订阅任何需要回复的场景。
     intents = botpy.Intents(public_messages=True)
-    client = TipBot(intents=intents, config=config, tips_file=TIPS_FILE)
+    client = TipBot(
+        intents=intents, config=config, tips_file=TIPS_FILE, state_file=STATE_FILE
+    )
     client.run(appid=config.app_id, secret=config.app_secret)
 
 
